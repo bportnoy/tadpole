@@ -1,0 +1,25 @@
+{
+  "name": "tadpole",
+  "version": "0.0.1",
+  "description": "Node's child_process made easy.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/bportnoy/tadpole"
+  },
+  "keywords": [
+    "node",
+    "child_process",
+    "thread",
+    "process",
+    "multithreaded",
+    "webworker",
+    "web",
+    "worker"
+  ],
+  "author": "Bradley Portnoy <bp@bradleyportnoy.com> (http://www.bradleyportnoy.com)",
+  "license": "MIT"
+}
