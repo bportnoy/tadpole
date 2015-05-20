@@ -14,7 +14,7 @@ numChildren: In a single core environment, we'll still use one thread and let th
 resources. In a multicore environment, we'll leave one core for Node and use the rest for child threads.
  */
 var _defaultOptions = {
-  numChildren: require('os').cpus().length -1,
+  numChildren: require('os').cpus().length -1 || 1,
   priority: true,
   addTimout: 30000
 };
@@ -197,23 +197,3 @@ function request (payload){
     if (!slotted) _queue.queue(payload); //in case the queue was empty, but all the threads were working
   }
 }
-
-console.log(Tadpole.size());
-Tadpole.spawn({numChildren:1});
-var add = function(a,b){return a+b;};
-var logdash = function(array){
-  var lo = require('lodash');
-  var result = 'a';
-  lo.each(array, function(item){
-    result = result.concat(item);
-  });
-  return result;
-};
-var ht = [['hey', 'there']];
-Tadpole.add({name: 'add', func: add}).then(function(success){
-  Tadpole.run('add', [1,2]).then(console.log.bind(console));
-  Tadpole.add({name: 'lo', func: logdash}).then(function(success){
-    Tadpole.run('lo', ht).then(console.log.bind(console));
-  });  
-  console.log(Tadpole.size());
-});
