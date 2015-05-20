@@ -7,7 +7,7 @@ var uuid = require('uuid');
 var _ = require('lodash');
 
 
-var _initialized = false, _options, _addsPending = 0, _toRemove = 0;
+var _initialized = false, _options, _addsPending = 0, _toRemove = 0, _addResolver;
 
 /*
 numChildren: In a single core environment, we'll still use one thread and let the OS manage
@@ -15,7 +15,8 @@ resources. In a multicore environment, we'll leave one core for Node and use the
  */
 var _defaultOptions = {
   numChildren: require('os').cpus().length -1,
-  priority: true
+  priority: true,
+  addTimout: 30000
 };
 
 var _functionDefaults = {
@@ -71,8 +72,6 @@ var Tadpole = {
 
   add: function(functionObject) {
 
-    var promises = [];
-
     if (_addsPending > 0) throw new Error('Cannot add another function until previous add has completed.');
     if (_priorities[functionObject.name]) throw new Error('Already added a function with that name.');
     if (functionObject.priority < 1) throw new Error('Priority less than 1 reserved for module use.');
@@ -87,20 +86,22 @@ var Tadpole = {
     _priorities[functionObject.name] = functionObject.priority;
 
     _.each(_children, function(child){
+      _addsPending++;
       setId(functionObject);
       new Promise(function(resolve, reject) {
         functionObject.resolver = resolve;
         functionObject.rejecter = reject;
         _inProcess[functionObject.id] = functionObject;
-        promises.push(resolve);
         child.thread.send(functionObject);
         // console.log('IP', _inProcess[functionObject.id]);
       });
 
     });
 
-    return Promise.all(promises);
-
+    return new Promise(function(resolve, reject){
+      _addResolver = resolve;
+      //TODO: reject if timeout elapses
+      });
   },
 
   run: function(name, args){
@@ -118,6 +119,10 @@ var Tadpole = {
   remove: function(num){
     num = num || 1;
     _toRemove++;
+  },
+
+  size: function(){
+    return Object.keys(_children).length;
   }
 
 };
@@ -193,11 +198,22 @@ function request (payload){
   }
 }
 
-Tadpole.spawn();
+console.log(Tadpole.size());
+Tadpole.spawn({numChildren:1});
 var add = function(a,b){return a+b;};
+var logdash = function(array){
+  var lo = require('lodash');
+  var result = 'a';
+  lo.each(array, function(item){
+    result = result.concat(item);
+  });
+  return result;
+};
+var ht = [['hey', 'there']];
 Tadpole.add({name: 'add', func: add}).then(function(success){
-  success.forEach(function(result){console.log(result);});
-  Tadpole.run('add', [1,2]).then(function(result){
-    console.log(result);
+  Tadpole.run('add', [1,2]).then(console.log.bind(console));
+  Tadpole.add({name: 'lo', func: logdash}).then(function(success){
+    Tadpole.run('lo', ht).then(console.log.bind(console));
   });  
+  console.log(Tadpole.size());
 });

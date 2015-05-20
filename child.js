@@ -4,7 +4,7 @@ var _functions = {};
 
 process.on('message', function(payload) {
 
-  console.log('in cp', payload);
+  // console.log('in cp', payload);
 
   if (payload.action === 'ADDFUNC'){
     _functions[payload.name] = eval(payload.func); //rehydrate our function
@@ -12,6 +12,10 @@ process.on('message', function(payload) {
   } else {
     try{
       var result = _functions[payload.action].apply(null, payload.args);
+      console.log('cp result: ', result);
+      if (!result) {
+        process.send({id: payload.id, result: 'undefined'});
+      }
       process.send({id: payload.id, result: result});
     } catch(err){
       process.send({id: payload.id, error: err});
