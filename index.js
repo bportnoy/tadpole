@@ -17,7 +17,8 @@ var _defaultOptions = {
   numChildren: require('os').cpus().length -1 || 1,
   priority: true,
   addTimout: 30000, 
-  env: process.ENV
+  env: process.ENV,
+  respawn: true
 };
 
 var _functionDefaults = {
@@ -105,7 +106,7 @@ var Tadpole = {
 
   add: function(num){
     while(num){
-      restoreChildFunctions(addChild());
+      injectAllFunctions(addChild());
       num--;
     }
   },
@@ -199,12 +200,14 @@ function addChild(id){
     next(id, payload);
   });
 
-  child.on('exit', function(code, signal){
-    if (!signal === 'SIGTERM'){
-      addChild(id);
-      restoreChildFunctions(child);
-    }
-  });
+  if (_options.respawn) {
+    child.on('exit', function(code, signal){
+      if (!signal === 'SIGTERM'){
+        addChild(id);
+        injectAllFunctions(child);
+      }
+    });
+  }
 
   var container = {thread: child, id: id, active: false};
   _children[id] = container;
@@ -222,13 +225,13 @@ function injectFunction(functionObject, child){
   });
 }
 
-function restoreChildFunctions(child){
+function injectAllFunctions(child){
   if (!_addsPending){
     _.each(_functions, function(functionObject){
       injectFunction(functionObject, child);
     });
   } else setTimeout(function(){
-    restoreChildFunctions(child);
+    injectAllFunctions(child);
   }, 500);
 }
 

@@ -4,7 +4,7 @@
   "description": "Node's child_process made easy.",
   "main": "index.js",
   "scripts": {
-    "test": "npm test"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
