@@ -1,6 +1,6 @@
 {
   "name": "tadpole",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Node's child_process made easy.",
   "main": "index.js",
   "scripts": {
