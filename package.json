@@ -21,5 +21,11 @@
     "worker"
   ],
   "author": "Bradley Portnoy <bp@bradleyportnoy.com> (http://www.bradleyportnoy.com)",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^2.9.25",
+    "js-priority-queue": "^0.1.1",
+    "lodash": "^3.9.1",
+    "uuid": "^2.0.1"
+  }
 }
