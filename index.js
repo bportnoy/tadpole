@@ -97,14 +97,19 @@ var Tadpole = {
 
   remove: function(num){
     num = num || 1;
+    
+    if (num > this.size()) num = this.size();
+
     while(num){
       _toRemove++;
       if(!_queue.length) killChild();
       num--;
     }
+
   },
 
   add: function(num){
+    num = num || 1;
     while(num){
       injectAllFunctions(addChild());
       num--;
@@ -113,6 +118,12 @@ var Tadpole = {
 
   size: function(){
     return Object.keys(_children).length;
+  },
+
+  killAll: function(){
+    this.remove(this.size());
+    _functions = {};
+    _initialized = false;
   }
 
 };
@@ -211,6 +222,7 @@ function addChild(id){
 
   var container = {thread: child, id: id, active: false};
   _children[id] = container;
+  console.log(_children);
   return id;
 }
 

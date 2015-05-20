@@ -12,7 +12,7 @@ process.on('message', function(payload) {
   } else {
     try{
       var result = _functions[payload.action].apply(null, payload.args);
-      console.log('cp result: ', result);
+      // console.log('cp result: ', result);
       if (!result) {
         process.send({id: payload.id, result: 'undefined'});
       }
