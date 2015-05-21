@@ -220,7 +220,7 @@ var Tadpole = (function () {
 
     if (_options.respawn) {
       child.on('exit', function(code, signal){
-        if (!signal === 'SIGTERM'){
+        if (signal !== 'SIGTERM'){
           addChild(id);
           injectAllFunctions(child);
         }
