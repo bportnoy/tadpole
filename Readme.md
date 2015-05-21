@@ -5,5 +5,3 @@
 
 ##Known Issues
 This is alpha software, so please treat it as such - it is NOT suitable for use in production.
-
-Presently, there is a bug in the add/remove/killall featureset which I will attempt to hunt down shortly.

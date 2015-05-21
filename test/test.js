@@ -11,7 +11,19 @@ var fib = function (n) {
   else {
     return fib(n-1) + fib(n-2);
   }
-}; //a conveniently long function for testing
+
+  function fib (n) {
+    if (n === 0){
+      return 0;
+    }
+    if (n === 1){
+      return 1;
+    }
+    else {
+      return fib(n-1) + fib(n-2);
+    }
+  }
+}; //a conveniently long function for testing, see how recursion has been handled
 
 describe('Tadpole', function(){
 
@@ -53,14 +65,13 @@ describe('Tadpole', function(){
       tadpole.run('fib', [1])
       .then(function(result){
         expect(result).to.equal(1);
-        // tadpole.run('fib', [10])
-        // .then(function(result){
-        //   console.log('10');
-        //   expect(result).to.equal(55);
+        tadpole.run('fib', [10])
+        .then(function(result){
+          expect(result).to.equal(55);
           done();
         });
       });
-    // });
+    });
   });
 
 

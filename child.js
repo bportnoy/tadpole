@@ -15,6 +15,7 @@ process.on('message', function(payload) {
       }
       process.send({id: payload.id, result: result});
     } catch(err){
+      console.error(err);
       process.send({id: payload.id, error: err});
     } 
   }
