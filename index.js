@@ -100,7 +100,11 @@ var Tadpole = (function () {
     },
 
     remove: function(num){
+
+      if (num < 1) throw new Error('Must provide value greater than 0 to remove.');
+
       num = num || 1;
+
       
       if (num > this.size()) num = this.size();
 
@@ -125,9 +129,11 @@ var Tadpole = (function () {
     },
 
     killAll: function(){
-      this.remove(this.size());
-      _functions = {};
-      _initialized = false;
+      if (_initialized){
+        this.remove(this.size());
+        _functions = {};
+        _initialized = false;
+      }
     }
     
   };
@@ -256,11 +262,10 @@ var Tadpole = (function () {
         _.each(_children, function(child){
           if (!child.active){
             killChild(child.id);
-            _toRemove--;
             return false; //we can stop once we get one
           }
-        //we haven't killed the child, but there is still a value in _toRemove, so it should be killed when it finishes what it's working on
         });
+        // we haven't killed the child, but there is still a value in _toRemove, so it should be killed when it finishes what it's working on
       }
   }
 
