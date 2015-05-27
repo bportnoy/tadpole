@@ -23,7 +23,7 @@ var Tadpole = (function () {
     numChildren: require('os').cpus().length -1 || 1,
     priority: true,
     addTimout: 30000, 
-    env: process.ENV,
+    env: process.env,
     respawn: true
   };
 
@@ -100,9 +100,12 @@ var Tadpole = (function () {
     apply, so if there is only one argument, it should be wrapped in an array.
      */
     run: function(name, args){
+
+      var priority = _options.priority ? _functions[name].priority : 2;
+
       return new Promise(function(resolve, reject){
         request({action: name,
-                  priority: _functions[name].priority,
+                  priority: priority,
                   args: args,
                   resolver: resolve,
                   rejecter: reject
@@ -164,7 +167,7 @@ var Tadpole = (function () {
     
   };
 
-  //Private functions.
+  //Private functions
   function stringifyFunction (func) {
     return '(' + func + ')';
   }
