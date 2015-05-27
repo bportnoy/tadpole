@@ -16,8 +16,8 @@ var Tadpole = (function () {
   var _initialized = false, _options, _addsPending = 0, _toRemove = 0, _addResolver;
 
   /*
-  numChildren: In a single core environment, we'll still use one thread and let the OS manage
-  resources. In a multicore environment, we'll leave one core for Node and use the rest for child threads.
+  numChildren: In a single core environment, we'll still use one process and let the OS manage
+  resources. In a multicore environment, we'll leave one core for Node and use the rest for child processes.
    */
   var _defaultOptions = {
     numChildren: require('os').cpus().length -1 || 1,
@@ -32,7 +32,7 @@ var Tadpole = (function () {
   };
 
   /*
-  A container for our child threads.
+  A container for our child processes.
    */
   var _children = {};
 
@@ -62,6 +62,12 @@ var Tadpole = (function () {
 
     },
 
+
+    /*
+    Adds a function to the child processes.
+    @param {object} functionObject - An object literal with keys 'name' and 'func' representing
+    the function name and the function to be added.
+     */
     addFunction: function(functionObject) {
 
       if (_addsPending > 0) throw new Error('Cannot add another function until previous add has completed.');
@@ -87,6 +93,12 @@ var Tadpole = (function () {
         });
     },
 
+    /*
+    Runs a function with the supplied arguments.
+    @param {string} name - The name of the previously added function to run.
+    @param {array} args - The arguments to pass in to the function. These arguments are passed to the function using
+    apply, so if there is only one argument, it should be wrapped in an array.
+     */
     run: function(name, args){
       return new Promise(function(resolve, reject){
         request({action: name,
@@ -99,6 +111,10 @@ var Tadpole = (function () {
 
     },
 
+    /*
+    Removes the specified number of child processes.
+    @param {number} num - The number of processes to remove, default 1.
+     */
     remove: function(num){
 
       if (num < 1) throw new Error('Must provide value greater than 0 to remove.');
@@ -116,6 +132,10 @@ var Tadpole = (function () {
 
     },
 
+    /*
+    Adds the specified number of child processes.
+    @param {number} num - The number of processes to add, default 1.
+     */
     add: function(num){
       num = num || 1;
       while(num){
@@ -124,10 +144,16 @@ var Tadpole = (function () {
       }
     },
 
+    /*
+    Returns the current number of child processes.
+     */
     size: function(){
       return Object.keys(_children).length;
     },
 
+    /*
+    Kills all remaining child processes.
+     */
     killAll: function(){
       if (_initialized){
         this.remove(this.size());
@@ -144,11 +170,11 @@ var Tadpole = (function () {
   }
 
   /*
-  This function is used by the module methods to process the result of each child thread action,
+  This function is used by the module methods to process the result of each child process action,
   and then get the next action from the queue.
    */
   function next (childId, payload) {
-    //use the IDs to retrieve the payload from our storage in this thread
+    //use the IDs to retrieve the payload from our storage in this process
     var sentPayload = _inProcess[payload.id];
 
     if (payload.error){
@@ -196,12 +222,12 @@ var Tadpole = (function () {
         if (!child.active){
           _inProcess[payload.id] = payload;
           child.active = true;
-          child.thread.send(payload);
+          child.process.send(payload);
           slotted = true;
           return false; //if we've found a home, we stop the each loop
         }
       });
-      if (!slotted) _queue.queue(payload); //in case the queue was empty, but all the threads were working
+      if (!slotted) _queue.queue(payload); //in case the queue was empty, but all the processes were working
     }
   }
 
@@ -227,35 +253,36 @@ var Tadpole = (function () {
       });
     }
 
-    var container = {thread: child, id: id, active: false};
+    var container = {process: child, id: id, active: false};
     _children[id] = container;
     return id;
   }
 
   function injectFunction(functionObject, child){
+    // console.log('child', child);
     _addsPending++;
     setId(functionObject);
     new Promise(function(resolve, reject) {
       functionObject.resolver = resolve;
       functionObject.rejecter = reject;
       _inProcess[functionObject.id] = functionObject;
-      child.thread.send(functionObject);
+      child.process.send(functionObject);
     });
   }
 
-  function injectAllFunctions(child){
+  function injectAllFunctions(childId){
     if (!_addsPending){
       _.each(_functions, function(functionObject){
-        injectFunction(functionObject, child);
+        injectFunction(functionObject, _children[childId]);
       });
     } else setTimeout(function(){
-      injectAllFunctions(child);
+      injectAllFunctions(childId);
     }, 500);
   }
 
   function killChild(childId){
     if (childId){
-      _children[childId].thread.kill();
+      _children[childId].process.kill();
       delete _children[childId];
       _toRemove--; 
     } else {

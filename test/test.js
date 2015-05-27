@@ -25,6 +25,10 @@ var fib = function (n) {
   }
 }; //a conveniently long function for testing, see how recursion has been handled
 
+var hello = function(){
+  return 'Hello, Tadpole!';
+};
+
 describe('Tadpole', function(){
 
  
@@ -69,6 +73,27 @@ describe('Tadpole', function(){
         .then(function(result){
           expect(result).to.equal(55);
           done();
+        });
+      });
+    });
+  });
+
+  it('adds all functions to new processes', function(done){
+    tadpole.addFunction({name: 'hello', func: hello})
+    .then(function(){
+      tadpole.addFunction({name: 'fib', func: fib})
+      .then(function(){
+        tadpole.remove(tadpole.size());
+        expect(tadpole.size()).to.equal(0);
+        tadpole.add();
+        tadpole.run('hello')
+        .then(function(result){
+          expect(result).to.equal('Hello, Tadpole!');
+          tadpole.run('fib', [10])
+          .then(function(result){
+            expect(result).to.equal(55);
+            done();
+          });
         });
       });
     });
