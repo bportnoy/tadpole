@@ -66,10 +66,10 @@ describe('Tadpole', function(){
   it('returns the proper values from those functions', function(done){
     tadpole.addFunction({name: 'fib', func: fib})
     .then(function(){
-      tadpole.run('fib', [1])
+      tadpole.run('fib', 1)
       .then(function(result){
         expect(result).to.equal(1);
-        tadpole.run('fib', [10])
+        tadpole.run('fib', 10)
         .then(function(result){
           expect(result).to.equal(55);
           done();
@@ -89,7 +89,7 @@ describe('Tadpole', function(){
         tadpole.run('hello')
         .then(function(result){
           expect(result).to.equal('Hello, Tadpole!');
-          tadpole.run('fib', [10])
+          tadpole.run('fib', 10)
           .then(function(result){
             expect(result).to.equal(55);
             done();

@@ -96,12 +96,13 @@ var Tadpole = (function () {
     /*
     Runs a function with the supplied arguments.
     @param {string} name - The name of the previously added function to run.
-    @param {array} args - The arguments to pass in to the function. These arguments are passed to the function using
-    apply, so if there is only one argument, it should be wrapped in an array.
+    @param Optional - additional arguments to pass to the function.
      */
-    run: function(name, args){
+    run: function(name){
 
       var priority = _options.priority ? _functions[name].priority : 2;
+
+      var args = Array.prototype.slice.call(arguments, 1);
 
       return new Promise(function(resolve, reject){
         request({action: name,

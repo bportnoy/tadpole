@@ -37,8 +37,8 @@ Adds a function to all child processes, returning a Promise that resolves to tru
 
 *******
 
-####`run(name, args)`
-Runs the function indicated by the string `name`. Args should be an array of arguments; the function will be called using `apply`, so single arguments should be wrapped in an array.
+####`run(name[, args])`
+Runs the function indicated by the string `name`, supplying any additional arguments to that function.
 
 `run` returns a Promise that resolves to the result of the function call, or is rejected if an error occurs.
 
