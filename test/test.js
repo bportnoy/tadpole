@@ -99,5 +99,26 @@ describe('Tadpole', function(){
     });
   });
 
+  it('handles functions with multiple arguments', function(done){
+    var sum = function(){
+      return Array.prototype.reduce.call(arguments, function(a, b){
+        return a+b;
+      });
+    };
+
+    tadpole.addFunction({name: 'sum', func: sum})
+    .then(function(){
+      tadpole.run('sum', 3, 5)
+      .then(function(result){
+        expect(result).to.equal(8);
+        tadpole.run('sum', 2, 6, 8, 2, 0, 4, 8)
+        .then(function(result){
+          expect(result).to.equal(30);
+          done();
+        });
+      });
+    });
+  });
+
 
 });
